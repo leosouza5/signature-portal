@@ -67,7 +67,7 @@ require __DIR__ . '/app-shell-start.php';
 
     <div class="documents-toolbar-spacer"></div>
 
-    <a class="documents-new-button" href="/envelopes/create"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"/><path d="M5 12h14"/></svg>Novo documento</a>
+    <a class="documents-new-button" href="/documentos/criar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"/><path d="M5 12h14"/></svg>Novo documento</a>
 </form>
 
 <section class="documents-card">
@@ -83,19 +83,18 @@ require __DIR__ . '/app-shell-start.php';
                 </tr>
             </thead>
             <tbody>
-                <?php if (empty($envelopes)): ?>
+                <?php if (empty($documents)): ?>
                     <tr><td colspan="5" class="empty-row">Nenhum documento criado ainda.</td></tr>
                 <?php else: ?>
-                    <?php foreach ($envelopes as $envelope): ?>
+                    <?php foreach ($documents as $document): ?>
                         <?php
-                        $signers = $signersByEnvelope[$envelope['id']] ?? [];
+                        $signers = $signersByDocument[$document['id']] ?? [];
                         $firstSigner = $signers[0] ?? null;
                         $extraSigners = max(count($signers) - 1, 0);
                         ?>
                         <tr>
                             <td>
-                                <strong><?= e($envelope['title']) ?></strong>
-                                <span>Envelope #<?= e((string) $envelope['id']) ?></span>
+                                <strong><?= e($document['title']) ?></strong>
                             </td>
                             <td>
                                 <?php if ($firstSigner): ?>
@@ -108,9 +107,9 @@ require __DIR__ . '/app-shell-start.php';
                                     <span class="documents-muted">Sem signatarios</span>
                                 <?php endif; ?>
                             </td>
-                            <td><span class="documents-badge <?= e(documents_status_class($envelope['status'])) ?>"><?= e(documents_status_label($envelope['status'])) ?></span></td>
-                            <td><?= e($envelope['created_at']) ?></td>
-                            <td><a class="documents-action" href="/envelopes/<?= e((string) $envelope['id']) ?>" aria-label="Abrir documento"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></a></td>
+                            <td><span class="documents-badge <?= e(documents_status_class($document['status'])) ?>"><?= e(documents_status_label($document['status'])) ?></span></td>
+                            <td><?= e(date('d/m/Y', strtotime($document['created_at']))) ?></td>
+                            <td><a class="view-action" href="/documentos/<?= e((string) $document['id']) ?>" aria-label="Abrir documento"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></a></td>
                         </tr>
                     <?php endforeach; ?>
                 <?php endif; ?>

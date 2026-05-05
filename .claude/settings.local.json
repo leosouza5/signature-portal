@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir /S /B \"C:\\\\Apache24\\\\estudo_node\\\\signature-portal\")",
+      "Bash(findstr /V \"\\\\\\\\vendor\\\\\\\\\")",
+      "Bash(findstr /V \"\\\\\\\\.git\\\\\\\\\")",
+      "Bash(composer dump-autoload *)"
+    ]
+  }
+}

@@ -35,11 +35,6 @@ require __DIR__ . '/auth-shell-start.php';
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
         </div>
 
-        <label class="terms-row">
-            <input type="checkbox" name="terms" value="1" required>
-            <span>Li e aceito os <a href="#">Termos de Uso</a> e a <a href="#">Politica de Privacidade</a></span>
-        </label>
-
         <button type="submit" class="login-submit">Criar conta</button>
     </form>
 

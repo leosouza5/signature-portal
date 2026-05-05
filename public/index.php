@@ -4,12 +4,15 @@ session_start();
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use Core\Router;
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
+$dotenv->load();
+
+use App\Router\Router;
 
 function view(string $name, array $data = []): void
 {
     extract($data);
-    require __DIR__ . '/../views/' . $name . '.php';
+    require __DIR__ . '/views/' . $name . '.php';
 }
 
 function redirect(string $path): void
@@ -72,7 +75,7 @@ function e(?string $value): string
 }
 
 $router = new Router();
-require __DIR__ . '/../routes/web.php';
+require __DIR__ . '/../app/Routes/web.php';
 
 try {
     $router->dispatch($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);

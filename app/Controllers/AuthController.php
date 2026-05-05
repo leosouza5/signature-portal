@@ -10,13 +10,20 @@ class AuthController
     {
         view('login');
     }
+    public function registerForm(): void
+    {
+        view('register');
+    }
 
     public function login(): void
     {
         try {
             $service = new AuthService();
+
             $user = $service->login(trim($_POST['email'] ?? ''), $_POST['password'] ?? '');
+
             $_SESSION['user_id'] = $user['id'];
+
             redirect('/dashboard');
         } catch (\Exception $exception) {
             flash_old(['email' => $_POST['email'] ?? '']);
@@ -25,15 +32,13 @@ class AuthController
         }
     }
 
-    public function registerForm(): void
-    {
-        view('register');
-    }
+
 
     public function register(): void
     {
         try {
             if (($_POST['password'] ?? '') !== ($_POST['password_confirmation'] ?? '')) {
+
                 throw new \Exception('A confirmacao de senha nao confere.');
             }
 
@@ -43,11 +48,13 @@ class AuthController
                 trim($_POST['email'] ?? ''),
                 $_POST['password'] ?? ''
             );
+
             $_SESSION['user_id'] = $userId;
             redirect('/dashboard');
         } catch (\Exception $exception) {
             flash_old(['name' => $_POST['name'] ?? '', 'email' => $_POST['email'] ?? '']);
             flash('error', $exception->getMessage());
+
             redirect('/register');
         }
     }

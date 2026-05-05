@@ -2,7 +2,7 @@
 
 namespace App\Repositories;
 
-use Core\Database;
+use App\Database\Connection;
 
 class EnvelopeRepository
 {
@@ -10,7 +10,7 @@ class EnvelopeRepository
 
     public function __construct()
     {
-        $this->db = Database::getConnection();
+        $this->db = Connection::getInstance();
     }
 
     public function create(int $userId, string $title): int
@@ -42,5 +42,10 @@ class EnvelopeRepository
     {
         $stmt = $this->db->prepare('UPDATE envelopes SET status = ?, error_message = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?');
         $stmt->execute([$status, $errorMessage, $id]);
+    }
+
+    public function delete(int $id): void
+    {
+        $this->db->prepare('DELETE FROM envelopes WHERE id = ?')->execute([$id]);
     }
 }

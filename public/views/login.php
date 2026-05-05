@@ -21,14 +21,6 @@ require __DIR__ . '/auth-shell-start.php';
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
         </div>
 
-        <div class="login-options">
-            <label class="remember">
-                <input type="checkbox" name="remember" value="1">
-                Lembrar de mim
-            </label>
-            <a href="#">Esqueci minha senha</a>
-        </div>
-
         <button type="submit" class="login-submit">Entrar</button>
     </form>
 

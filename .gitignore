@@ -1,5 +1,5 @@
 /vendor/
-config.php
+.env
 /database/database.sqlite
 /storage/uploads/
 /storage/logs/

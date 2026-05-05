@@ -12,9 +12,10 @@ MVP em PHP puro para criar envelopes, enviar documentos para assinatura via Cert
 ## Configuracao
 
 1. Habilite as extensoes PHP `pdo_sqlite` e `curl`.
-2. Configure as credenciais no arquivo `config.php` ou por variaveis de ambiente:
+2. Copie `.env.example` para `.env` e preencha as credenciais:
 
 ```txt
+CERTISIGN_BASE_URL=https://api-sbx.portaldeassinaturas.com.br/api/v2
 CERTISIGN_TOKEN=SEU_TOKEN
 CERTISIGN_CODE=SEU_CODE
 ```
@@ -22,7 +23,7 @@ CERTISIGN_CODE=SEU_CODE
 3. Rode a migracao:
 
 ```bash
-php database/migrate.php
+php bootstrap.php
 ```
 
 4. Suba o servidor local:

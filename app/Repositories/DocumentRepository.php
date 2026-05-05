@@ -2,7 +2,7 @@
 
 namespace App\Repositories;
 
-use Core\Database;
+use App\Database\Connection;
 
 class DocumentRepository
 {
@@ -10,23 +10,45 @@ class DocumentRepository
 
     public function __construct()
     {
-        $this->db = Database::getConnection();
+        $this->db = Connection::getInstance();
     }
 
-    public function create(int $envelopeId, string $originalName, string $localPath): int
+    public function create(int $userId, string $title, string $originalName, string $localPath): int
     {
-        $stmt = $this->db->prepare('INSERT INTO documents (envelope_id, original_name, local_path) VALUES (?, ?, ?)');
-        $stmt->execute([$envelopeId, $originalName, $localPath]);
+        $stmt = $this->db->prepare('INSERT INTO documents (user_id, title, original_name, local_path) VALUES (?, ?, ?, ?)');
+        $stmt->execute([$userId, $title, $originalName, $localPath]);
 
         return (int) $this->db->lastInsertId();
     }
 
-    public function allByEnvelope(int $envelopeId): array
+    public function allByUser(int $userId): array
     {
-        $stmt = $this->db->prepare('SELECT * FROM documents WHERE envelope_id = ? ORDER BY id ASC');
-        $stmt->execute([$envelopeId]);
+        $stmt = $this->db->prepare('SELECT * FROM documents WHERE user_id = ? ORDER BY id DESC');
+        $stmt->execute([$userId]);
 
         return $stmt->fetchAll();
+    }
+
+    public function findForUser(int $id, int $userId): ?array
+    {
+        $stmt = $this->db->prepare('SELECT * FROM documents WHERE id = ? AND user_id = ? LIMIT 1');
+        $stmt->execute([$id, $userId]);
+
+        return $stmt->fetch() ?: null;
+    }
+
+    public function findById(int $id): ?array
+    {
+        $stmt = $this->db->prepare('SELECT * FROM documents WHERE id = ? LIMIT 1');
+        $stmt->execute([$id]);
+
+        return $stmt->fetch() ?: null;
+    }
+
+    public function updateStatus(int $id, string $status, ?string $errorMessage = null): void
+    {
+        $stmt = $this->db->prepare('UPDATE documents SET status = ?, error_message = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?');
+        $stmt->execute([$status, $errorMessage, $id]);
     }
 
     public function updateUploadId(int $id, string $uploadId): void
@@ -37,7 +59,12 @@ class DocumentRepository
 
     public function updateCertisignData(int $id, ?string $documentId, ?string $documentKey, string $status): void
     {
-        $stmt = $this->db->prepare('UPDATE documents SET certisign_document_id = ?, certisign_document_key = ?, status = ? WHERE id = ?');
+        $stmt = $this->db->prepare('UPDATE documents SET certisign_document_id = ?, certisign_document_key = ?, status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?');
         $stmt->execute([$documentId, $documentKey, $status, $id]);
+    }
+
+    public function delete(int $id): void
+    {
+        $this->db->prepare('DELETE FROM documents WHERE id = ?')->execute([$id]);
     }
 }

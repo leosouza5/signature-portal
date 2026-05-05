@@ -10,10 +10,9 @@ class CertisignService
 
     public function __construct()
     {
-        $config = require __DIR__ . '/../../config.php';
-        $this->baseUrl = rtrim($config['certisign_base_url'], '/');
-        $this->token = $config['certisign_token'];
-        $this->code = $config['certisign_code'];
+        $this->baseUrl = rtrim($_ENV['CERTISIGN_BASE_URL'], '/');
+        $this->token = $_ENV['CERTISIGN_TOKEN'];
+        $this->code = $_ENV['CERTISIGN_CODE'];
     }
 
     public function uploadDocument(string $filePath, string $fileName): string
@@ -24,6 +23,7 @@ class CertisignService
         ];
 
         $response = $this->request('POST', '/document/upload', $payload);
+        error_log('[document/upload response] ' . json_encode($response));
 
         if (empty($response['uploadId'])) {
             throw new \Exception('Upload enviado, mas uploadId nao foi retornado pela Certisign.');
@@ -34,23 +34,44 @@ class CertisignService
 
     public function createBatch(array $documents, array $signers): array
     {
-        $payload = ['documents' => []];
+        $documents_payload = [];
 
         foreach ($documents as $document) {
-            $payload['documents'][] = [
-                'typeId' => 1,
+            $name = $this->ensurePdfFileName($document['original_name']);
+            $documents_payload[] = [
                 'document' => [
                     'name' => $document['original_name'],
                     'upload' => [
                         'id' => $document['certisign_upload_id'],
-                        'name' => $document['original_name'],
+                        'name' => $name,
                     ],
                 ],
                 'electronicSigners' => $this->formatSigners($signers),
             ];
         }
 
-        return $this->request('POST', '/document/createBatch', $payload);
+        try {
+            return $this->request('POST', '/document/createBatch', ['documents' => $documents_payload]);
+        } catch (\Exception $e) {
+            if (str_contains($e->getMessage(), 'HTTP 406') && str_contains($e->getMessage(), '739')) {
+                return $this->request('POST', '/document/create', $documents_payload[0]);
+            }
+            throw $e;
+        }
+    }
+
+    public function getDocumentDetails(string $documentId): array
+    {
+        return $this->request('GET', '/document/details/' . rawurlencode($documentId));
+    }
+
+public function validateSignatures(string $documentKey): array
+    {
+        $response = $this->request('GET', '/document/ValidateSignatures?key=' . rawurlencode($documentKey));
+        $response['isValid'] = ($response['isValid'] ?? false) === true;
+        $electronic = $response['electronicSignatures'] ?? [];
+        $response['hasElectronicSignature'] = is_array($electronic) && count($electronic) > 0;
+        return $response;
     }
 
     public function downloadPackage(string $key): array
@@ -62,17 +83,31 @@ class CertisignService
     {
         $items = [];
 
-        foreach ($signers as $signer) {
+        foreach ($signers as $index => $signer) {
+            $cpf = preg_replace('/\D/', '', (string) $signer['cpf']);
             $items[] = [
                 'step' => (int) $signer['step'],
+                'title' => 'Assinante ' . ($index + 1),
                 'name' => $signer['name'],
                 'email' => $signer['email'],
-                'individualIdentificationCode' => $signer['cpf'],
-                'inPerson' => false,
+                'individualIdentificationCode' => $cpf,
+                'identificationType' => [
+                    'accessCode' => true,
+                ],
+                'accessCode' => substr(str_pad($cpf, 6, '0', STR_PAD_LEFT), -6),
             ];
         }
 
         return $items;
+    }
+
+    private function ensurePdfFileName(string $fileName): string
+    {
+        $trimmed = trim($fileName);
+        if (strtolower(pathinfo($trimmed, PATHINFO_EXTENSION)) === 'pdf') {
+            return $trimmed;
+        }
+        return $trimmed . '.pdf';
     }
 
     private function fileToBytes(string $filePath): array
@@ -111,6 +146,8 @@ class CertisignService
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $method);
         curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
 
         $caBundle = ini_get('curl.cainfo');
         if ($caBundle && file_exists($caBundle)) {
@@ -118,7 +155,9 @@ class CertisignService
         }
 
         if ($payload !== null) {
-            curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($payload));
+            $encoded = json_encode($payload);
+            error_log('[Certisign] ' . $method . ' ' . $endpoint . ' => ' . $encoded);
+            curl_setopt($curl, CURLOPT_POSTFIELDS, $encoded);
         }
 
         $body = curl_exec($curl);

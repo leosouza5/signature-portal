@@ -12,8 +12,8 @@ $router->post('/logout', [AuthController::class, 'logout']);
 
 $router->get('/dashboard', [EnvelopeController::class, 'dashboard']);
 $router->get('/documents', [EnvelopeController::class, 'documents']);
-$router->get('/envelopes/create', [EnvelopeController::class, 'createForm']);
-$router->post('/envelopes', [EnvelopeController::class, 'store']);
-$router->get('/envelopes/{id}', [EnvelopeController::class, 'show']);
-$router->post('/envelopes/{id}/refresh-status', [EnvelopeController::class, 'refreshStatus']);
-$router->post('/envelopes/{id}/download', [EnvelopeController::class, 'download']);
+$router->get('/documentos/criar', [EnvelopeController::class, 'createForm']);
+$router->post('/documentos', [EnvelopeController::class, 'store']);
+$router->get('/documentos/{id}', [EnvelopeController::class, 'show']);
+$router->post('/documentos/{id}/atualizar-status', [EnvelopeController::class, 'refreshStatus']);
+$router->post('/documents/{id}/download', [EnvelopeController::class, 'download']);

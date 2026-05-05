@@ -2,7 +2,7 @@
 
 namespace App\Repositories;
 
-use Core\Database;
+use App\Database\Connection;
 
 class SignerRepository
 {
@@ -10,23 +10,29 @@ class SignerRepository
 
     public function __construct()
     {
-        $this->db = Database::getConnection();
+        $this->db = Connection::getInstance();
     }
 
-    public function create(int $envelopeId, string $name, string $email, string $cpf, int $step): int
+    public function create(int $documentId, string $name, string $email, string $cpf, int $step): int
     {
-        $stmt = $this->db->prepare('INSERT INTO signers (envelope_id, name, email, cpf, step) VALUES (?, ?, ?, ?, ?)');
-        $stmt->execute([$envelopeId, $name, $email, $cpf, $step]);
+        $stmt = $this->db->prepare('INSERT INTO signers (document_id, name, email, cpf, step) VALUES (?, ?, ?, ?, ?)');
+        $stmt->execute([$documentId, $name, $email, $cpf, $step]);
 
         return (int) $this->db->lastInsertId();
     }
 
-    public function allByEnvelope(int $envelopeId): array
+    public function allByDocument(int $documentId): array
     {
-        $stmt = $this->db->prepare('SELECT * FROM signers WHERE envelope_id = ? ORDER BY step ASC, id ASC');
-        $stmt->execute([$envelopeId]);
+        $stmt = $this->db->prepare('SELECT * FROM signers WHERE document_id = ? ORDER BY step ASC, id ASC');
+        $stmt->execute([$documentId]);
 
         return $stmt->fetchAll();
+    }
+
+    public function updateStatus(int $id, string $status): void
+    {
+        $stmt = $this->db->prepare('UPDATE signers SET status = ? WHERE id = ?');
+        $stmt->execute([$status, $id]);
     }
 
     public function updateCertisignData(int $id, ?string $attendeeId, ?string $signUrl): void

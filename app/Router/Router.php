@@ -1,6 +1,8 @@
 <?php
 
-namespace Core;
+declare(strict_types=1);
+
+namespace App\Router;
 
 class Router
 {
@@ -31,7 +33,7 @@ class Router
             if ($route['method'] === $method && $params !== null) {
                 [$class, $action] = $route['handler'];
                 $controller = new $class();
-                $controller->$action(...$params);
+                $controller->$action(...array_map('intval', $params));
                 return;
             }
         }

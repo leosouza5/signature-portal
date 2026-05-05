@@ -2,7 +2,7 @@
 
 namespace App\Repositories;
 
-use Core\Database;
+use App\Database\Connection;
 
 class UserRepository
 {
@@ -10,7 +10,7 @@ class UserRepository
 
     public function __construct()
     {
-        $this->db = Database::getConnection();
+        $this->db = Connection::getInstance();
     }
 
     public function create(string $name, string $email, string $passwordHash): int
