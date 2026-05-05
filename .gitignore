@@ -1,0 +1,11 @@
+/vendor/
+config.php
+/database/database.sqlite
+/storage/uploads/
+/storage/logs/
+
+
+
+.idea/
+.vscode/
+*.swp

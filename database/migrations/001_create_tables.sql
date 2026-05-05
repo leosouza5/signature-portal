@@ -1,0 +1,45 @@
+CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL UNIQUE,
+    password TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS envelopes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    title TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'DRAFT',
+    error_message TEXT,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE TABLE IF NOT EXISTS documents (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    envelope_id INTEGER NOT NULL,
+    original_name TEXT NOT NULL,
+    local_path TEXT NOT NULL,
+    certisign_upload_id TEXT,
+    certisign_document_id TEXT,
+    certisign_document_key TEXT,
+    status TEXT NOT NULL DEFAULT 'DRAFT',
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (envelope_id) REFERENCES envelopes(id)
+);
+
+CREATE TABLE IF NOT EXISTS signers (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    envelope_id INTEGER NOT NULL,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL,
+    cpf TEXT NOT NULL,
+    step INTEGER NOT NULL DEFAULT 1,
+    certisign_attendee_id TEXT,
+    sign_url TEXT,
+    status TEXT NOT NULL DEFAULT 'PENDING',
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (envelope_id) REFERENCES envelopes(id)
+);
