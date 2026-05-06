@@ -63,30 +63,34 @@ class DocumentService
             throw new \Exception('Documento nao encontrado.');
         }
 
-        $portalId = (string) ($document['certisign_document_id'] ?? '');
+        $key = $document['certisign_document_key'] ?? null;
 
-        if ($portalId === '') {
+        if (!$key) {
             return ['status' => $document['status']];
         }
 
-        $details = $this->certisign->getDocumentDetails($portalId);
-        error_log('[document/details ' . $portalId . '] ' . json_encode($details));
+        $signers = $this->signers->getAllByDocument($documentId);
+        $validation = $this->certisign->validateSignatures($key);
+        $signedCount = $this->updateSignerStatuses($signers, $validation['electronicSignatures'] ?? []);
 
-        $status = $this->parseDocumentStatus($details);
-        $this->documents->updateStatus($documentId, $status);
-
-        $key = $document['certisign_document_key'] ?? null;
-        if ($key) {
-            $signers = $this->signers->getAllByDocument($documentId);
-            $validation = $this->certisign->validateSignatures($key);
-            $this->updateSignerStatuses($signers, $validation['electronicSignatures'] ?? []);
+        $total = count($signers);
+        if ($signedCount === 0) {
+            $status = 'SENT';
+        } elseif ($signedCount < $total) {
+            $status = 'PARTIAL';
+        } else {
+            $status = 'COMPLETED';
         }
+
+        $this->documents->updateStatus($documentId, $status);
 
         return ['status' => $status];
     }
 
-    private function updateSignerStatuses(array $signers, array $electronicSignatures): void
+    private function updateSignerStatuses(array $signers, array $electronicSignatures): int
     {
+        $signedCount = 0;
+
         foreach ($signers as $signer) {
             $signed = false;
             $signerCpf = preg_replace('/\D/', '', (string) $signer['cpf']);
@@ -106,7 +110,13 @@ class DocumentService
             }
 
             $this->signers->updateStatus((int) $signer['id'], $signed ? 'SIGNED' : 'PENDING');
+
+            if ($signed) {
+                $signedCount++;
+            }
         }
+
+        return $signedCount;
     }
 
     public function downloadDocument(int $documentId, int $userId): array
@@ -134,23 +144,6 @@ class DocumentService
         }
 
         return $package;
-    }
-
-    private function parseDocumentStatus(array $details): string
-    {
-        if ($details['rejected'] ?? false) {
-            return 'ERROR';
-        }
-
-        if ($details['completed'] ?? false) {
-            return 'COMPLETED';
-        }
-
-        if ($details['partiallySigned'] ?? false) {
-            return 'PARTIAL';
-        }
-
-        return 'SENT';
     }
 
     private function validate(string $title, array $files, array $signers): void

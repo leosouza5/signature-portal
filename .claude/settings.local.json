@@ -12,7 +12,8 @@
       "Bash(mv register.php auth/register.php)",
       "Bash(mv documents.php documents/index.php)",
       "Bash(mv document-detail.php documents/detail.php)",
-      "Bash(mv create-document.php documents/create.php)"
+      "Bash(mv create-document.php documents/create.php)",
+      "Bash(dir C:\\\\apache24\\\\estudo_node\\\\signature-portal *)"
     ]
   }
 }
