@@ -8,19 +8,19 @@ class Router
 {
     private array $routes = [];
 
-    public function get(string $path, array $handler): void
+    public function get(string $path, array $handler, array $middleware = []): void
     {
-        $this->add('GET', $path, $handler);
+        $this->add('GET', $path, $handler, $middleware);
     }
 
-    public function post(string $path, array $handler): void
+    public function post(string $path, array $handler, array $middleware = []): void
     {
-        $this->add('POST', $path, $handler);
+        $this->add('POST', $path, $handler, $middleware);
     }
 
-    private function add(string $method, string $path, array $handler): void
+    private function add(string $method, string $path, array $handler, array $middleware): void
     {
-        $this->routes[] = compact('method', 'path', 'handler');
+        $this->routes[] = compact('method', 'path', 'handler', 'middleware');
     }
 
     public function dispatch(string $method, string $uri): void
@@ -31,6 +31,11 @@ class Router
             $params = $this->match($route['path'], $path);
 
             if ($route['method'] === $method && $params !== null) {
+                if (in_array('auth', $route['middleware']) && empty($_SESSION['user_id'])) {
+                    header('Location: /login');
+                    exit;
+                }
+
                 [$class, $action] = $route['handler'];
                 $controller = new $class();
                 $controller->$action(...array_map('intval', $params));

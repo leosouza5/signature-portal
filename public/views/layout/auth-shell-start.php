@@ -2,20 +2,20 @@
 $bodyClass = 'login-page';
 $hideTopbar = true;
 $authScreenClass = trim('login-screen ' . ($authScreenClass ?? ''));
-require __DIR__ . '/layout-header.php';
+require __DIR__ . '/header.php';
 ?>
 
-<section class="<?= e($authScreenClass) ?>">
+<section class="<?= htmlspecialchars($authScreenClass) ?>">
     <div class="login-brand">
         <span class="login-brand-icon">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+            <i data-lucide="pencil"></i>
         </span>
         <span><strong>Signature</strong><strong class="green">Portal</strong></span>
     </div>
 
     <div class="login-copy">
-        <h1><?= nl2br(e($authTitle ?? '')) ?></h1>
-        <p><?= nl2br(e($authSubtitle ?? '')) ?></p>
+        <h1><?= htmlspecialchars($tituloAuth ?? '') ?></h1>
+        <p><?= htmlspecialchars($subTituloAuth ?? '') ?></p>
     </div>
 
     <div class="login-circle circle-one"></div>

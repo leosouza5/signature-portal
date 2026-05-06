@@ -15,15 +15,23 @@ class SignerRepository
 
     public function create(int $documentId, string $name, string $email, string $cpf, int $step): int
     {
-        $stmt = $this->db->prepare('INSERT INTO signers (document_id, name, email, cpf, step) VALUES (?, ?, ?, ?, ?)');
+        $stmt = $this->db->prepare('
+            INSERT INTO signers (document_id, name, email, cpf, step)
+            VALUES (?, ?, ?, ?, ?)
+        ');
         $stmt->execute([$documentId, $name, $email, $cpf, $step]);
 
         return (int) $this->db->lastInsertId();
     }
 
-    public function allByDocument(int $documentId): array
+    public function getAllByDocument(int $documentId): array
     {
-        $stmt = $this->db->prepare('SELECT * FROM signers WHERE document_id = ? ORDER BY step ASC, id ASC');
+        $stmt = $this->db->prepare('
+            SELECT *
+            FROM signers
+            WHERE document_id = ?
+            ORDER BY step ASC, id ASC
+        ');
         $stmt->execute([$documentId]);
 
         return $stmt->fetchAll();
@@ -31,13 +39,22 @@ class SignerRepository
 
     public function updateStatus(int $id, string $status): void
     {
-        $stmt = $this->db->prepare('UPDATE signers SET status = ? WHERE id = ?');
+        $stmt = $this->db->prepare('
+            UPDATE signers
+            SET status = ?
+            WHERE id = ?
+        ');
         $stmt->execute([$status, $id]);
     }
 
-    public function updateCertisignData(int $id, ?string $attendeeId, ?string $signUrl): void
+    public function updateSignatureInfo(int $id, ?string $attendeeId, ?string $signUrl): void
     {
-        $stmt = $this->db->prepare('UPDATE signers SET certisign_attendee_id = ?, sign_url = ? WHERE id = ?');
+        $stmt = $this->db->prepare('
+            UPDATE signers
+            SET certisign_attendee_id = ?,
+                sign_url = ?
+            WHERE id = ?
+        ');
         $stmt->execute([$attendeeId, $signUrl, $id]);
     }
 }

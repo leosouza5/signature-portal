@@ -9,11 +9,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/style.css">
 </head>
-<body class="<?= e($bodyClass ?? '') ?>">
+<body class="<?= htmlspecialchars($bodyClass ?? '') ?>">
+<?php
+use App\Http\Session;
+$session = new Session();
+?>
 <?php if (empty($hideTopbar)): ?>
     <header class="topbar">
         <a class="brand" href="/dashboard">Signature Portal</a>
-        <?php if (current_user_id()): ?>
+        <?php if ($session->getUserId()): ?>
             <nav>
                 <a href="/dashboard">Dashboard</a>
                 <a href="/envelopes/create">Novo envio</a>
@@ -25,9 +29,9 @@
     </header>
 <?php endif; ?>
 <main class="container">
-    <?php if ($message = flash_message('success')): ?>
-        <div class="alert success"><?= e($message) ?></div>
+    <?php if ($message = $session->getMessage('success')): ?>
+        <div class="alert success"><?= htmlspecialchars($message) ?></div>
     <?php endif; ?>
-    <?php if ($message = flash_message('error')): ?>
-        <div class="alert error"><?= e($message) ?></div>
+    <?php if ($message = $session->getMessage('error')): ?>
+        <div class="alert error"><?= htmlspecialchars($message) ?></div>
     <?php endif; ?>

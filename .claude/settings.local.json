@@ -4,7 +4,15 @@
       "Bash(dir /S /B \"C:\\\\Apache24\\\\estudo_node\\\\signature-portal\")",
       "Bash(findstr /V \"\\\\\\\\vendor\\\\\\\\\")",
       "Bash(findstr /V \"\\\\\\\\.git\\\\\\\\\")",
-      "Bash(composer dump-autoload *)"
+      "Bash(composer dump-autoload *)",
+      "Bash(xargs wc:*)",
+      "Bash(sed:*)",
+      "Bash(mkdir:*)",
+      "Bash(mv login.php auth/login.php)",
+      "Bash(mv register.php auth/register.php)",
+      "Bash(mv documents.php documents/index.php)",
+      "Bash(mv document-detail.php documents/detail.php)",
+      "Bash(mv create-document.php documents/create.php)"
     ]
   }
 }

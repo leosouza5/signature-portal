@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Repositories\DocumentRepository;
 use App\Repositories\SignerRepository;
 
-class EnvelopeService
+class DocumentService
 {
     private DocumentRepository $documents;
     private SignerRepository $signers;
@@ -41,8 +41,8 @@ class EnvelopeService
             $uploadId = $this->certisign->uploadDocument($localPath, $file['name']);
             $this->documents->updateUploadId($documentId, $uploadId);
 
-            $document = $this->documents->findById($documentId);
-            $signers = $this->signers->allByDocument($documentId);
+            $document = $this->documents->getById($documentId);
+            $signers = $this->signers->getAllByDocument($documentId);
             $response = $this->certisign->createBatch([$document], $signers);
             error_log('[createBatch response] ' . json_encode($response));
             $this->saveBatchResponse([$document], $signers, $response);
@@ -57,7 +57,7 @@ class EnvelopeService
 
     public function checkStatus(int $documentId): array
     {
-        $document = $this->documents->findById($documentId);
+        $document = $this->documents->getById($documentId);
 
         if (!$document) {
             throw new \Exception('Documento nao encontrado.');
@@ -77,7 +77,7 @@ class EnvelopeService
 
         $key = $document['certisign_document_key'] ?? null;
         if ($key) {
-            $signers = $this->signers->allByDocument($documentId);
+            $signers = $this->signers->getAllByDocument($documentId);
             $validation = $this->certisign->validateSignatures($key);
             $this->updateSignerStatuses($signers, $validation['electronicSignatures'] ?? []);
         }
@@ -111,7 +111,7 @@ class EnvelopeService
 
     public function downloadDocument(int $documentId, int $userId): array
     {
-        $document = $this->documents->findForUser($documentId, $userId);
+        $document = $this->documents->getByUser($documentId, $userId);
 
         if (!$document) {
             throw new \Exception('Documento nao encontrado.');
@@ -226,7 +226,7 @@ class EnvelopeService
             $result = $documentResults[$index] ?? $response;
             $documentId = $result['id'] ?? $result['documentId'] ?? null;
             $documentKey = $result['chave'] ?? $result['key'] ?? $result['documentKey'] ?? $result['packageKey'] ?? null;
-            $this->documents->updateCertisignData((int) $document['id'], $documentId, $documentKey, 'SENT');
+            $this->documents->updateSignatureInfo((int) $document['id'], $documentId, $documentKey, 'SENT');
         }
 
         $attendees = $this->extractAttendees($response);
@@ -257,7 +257,7 @@ class EnvelopeService
                 break;
             }
 
-            $this->signers->updateCertisignData((int) $signer['id'], $attendeeId, $signUrl);
+            $this->signers->updateSignatureInfo((int) $signer['id'], $attendeeId, $signUrl);
         }
     }
 
