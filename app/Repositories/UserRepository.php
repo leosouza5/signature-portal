@@ -18,10 +18,11 @@ class UserRepository
         $stmt = $this->db->prepare('
             INSERT INTO users (name, email, password)
             VALUES (?, ?, ?)
+            RETURNING id
         ');
         $stmt->execute([$name, $email, $passwordHash]);
 
-        return (int) $this->db->lastInsertId();
+        return (int) $stmt->fetchColumn();
     }
 
     public function findByEmail(string $email): ?array

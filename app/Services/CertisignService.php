@@ -94,7 +94,7 @@ public function validateSignatures(string $documentKey): array
                 'identificationType' => [
                     'accessCode' => true,
                 ],
-                'accessCode' => substr(str_pad($cpf, 6, '0', STR_PAD_LEFT), -6),
+                'accessCode' => substr(str_pad($cpf, 3, '0', STR_PAD_LEFT), -3),
             ];
         }
 

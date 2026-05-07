@@ -18,10 +18,11 @@ class SignerRepository
         $stmt = $this->db->prepare('
             INSERT INTO signers (document_id, name, email, cpf, step)
             VALUES (?, ?, ?, ?, ?)
+            RETURNING id
         ');
         $stmt->execute([$documentId, $name, $email, $cpf, $step]);
 
-        return (int) $this->db->lastInsertId();
+        return (int) $stmt->fetchColumn();
     }
 
     public function getAllByDocument(int $documentId): array

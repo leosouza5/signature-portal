@@ -1,3 +1,11 @@
+function maskCpf(input) {
+    let value = input.value.replace(/\D/g, '').slice(0, 11);
+    if (value.length > 9)      value = value.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/, '$1.$2.$3-$4');
+    else if (value.length > 6) value = value.replace(/(\d{3})(\d{3})(\d{1,3})/, '$1.$2.$3');
+    else if (value.length > 3) value = value.replace(/(\d{3})(\d{1,3})/, '$1.$2');
+    input.value = value;
+}
+
 let signerIndex = document.querySelectorAll('#signers .signer-row').length;
 const addSignerButton = document.getElementById('add-signer');
 const signersContainer = document.getElementById('signers');
@@ -23,7 +31,7 @@ if (addSignerButton && signersContainer) {
             <span class="signer-number">${signerIndex + 1}</span>
             <label><input type="text" name="signers[${signerIndex}][name]" required placeholder="Nome completo"></label>
             <label><input type="email" name="signers[${signerIndex}][email]" required placeholder="email@exemplo.com"></label>
-            <label><input type="text" name="signers[${signerIndex}][cpf]" required placeholder="00000000000"></label>
+            <label><input type="text" name="signers[${signerIndex}][cpf]" required oninput="maskCpf(this)" placeholder="000.000.000-00" minlength="14" maxlength="14" pattern="\\d{3}\\.\\d{3}\\.\\d{3}-\\d{2}"></label>
         `;
         signersContainer.appendChild(row);
         signerIndex += 1;

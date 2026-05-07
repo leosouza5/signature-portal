@@ -12,17 +12,17 @@ final class Migrations
 
         $pdo->exec(
             "CREATE TABLE IF NOT EXISTS users (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id SERIAL PRIMARY KEY,
                 name TEXT NOT NULL,
                 email TEXT NOT NULL UNIQUE,
                 password TEXT NOT NULL,
-                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+                created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
             )"
         );
 
         $pdo->exec(
             "CREATE TABLE IF NOT EXISTS documents (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id SERIAL PRIMARY KEY,
                 user_id INTEGER NOT NULL,
                 title TEXT NOT NULL,
                 original_name TEXT NOT NULL,
@@ -32,15 +32,15 @@ final class Migrations
                 certisign_document_key TEXT,
                 status TEXT NOT NULL DEFAULT 'DRAFT',
                 error_message TEXT,
-                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
                 FOREIGN KEY (user_id) REFERENCES users(id)
             )"
         );
 
         $pdo->exec(
             "CREATE TABLE IF NOT EXISTS signers (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id SERIAL PRIMARY KEY,
                 document_id INTEGER NOT NULL,
                 name TEXT NOT NULL,
                 email TEXT NOT NULL,
@@ -49,7 +49,7 @@ final class Migrations
                 certisign_attendee_id TEXT,
                 sign_url TEXT,
                 status TEXT NOT NULL DEFAULT 'PENDING',
-                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
                 FOREIGN KEY (document_id) REFERENCES documents(id)
             )"
         );

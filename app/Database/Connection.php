@@ -14,12 +14,18 @@ final class Connection
     public static function getInstance(): PDO
     {
         if (self::$instance === null) {
-            if (!in_array('sqlite', PDO::getAvailableDrivers(), true)) {
-                throw new RuntimeException('Driver pdo_sqlite nao esta habilitado no PHP.');
+            if (!in_array('pgsql', PDO::getAvailableDrivers(), true)) {
+                throw new RuntimeException('Driver pdo_pgsql nao esta habilitado no PHP.');
             }
 
-            $path = __DIR__ . '/../../../database.sqlite';
-            self::$instance = new PDO('sqlite:' . $path);
+            $host = $_ENV['DB_HOST'] ?? 'localhost';
+            $port = $_ENV['DB_PORT'] ?? '5432';
+            $name = $_ENV['DB_NAME'] ?? 'signature_portal';
+            $user = $_ENV['DB_USER'] ?? 'postgres';
+            $pass = $_ENV['DB_PASSWORD'] ?? '';
+
+            $dsn = "pgsql:host={$host};port={$port};dbname={$name}";
+            self::$instance = new PDO($dsn, $user, $pass);
             self::$instance->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             self::$instance->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
         }

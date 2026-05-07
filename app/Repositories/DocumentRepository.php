@@ -18,11 +18,12 @@ class DocumentRepository
         $stmt = $this->db->prepare('
             INSERT INTO documents (user_id, title, original_name, local_path)
             VALUES (?, ?, ?, ?)
+            RETURNING id
         ');
 
         $stmt->execute([$userId, $title, $originalName, $localPath]);
 
-        return (int) $this->db->lastInsertId();
+        return (int) $stmt->fetchColumn();
     }
 
     public function getAllByUser(int $userId): array
