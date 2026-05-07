@@ -13,7 +13,7 @@ require __DIR__ . '/header.php';
         </a>
 
         <nav class="app-nav">
-            <a class="<?= $telaAtiva === 'dashboard' ? 'active' : '' ?>" href="/dashboard"><i data-lucide="house"></i>Inicio</a>
+            <a class="<?= $telaAtiva === 'dashboard' ? 'active' : '' ?>" href="/dashboard"><i data-lucide="house"></i>Início</a>
             <a class="<?= $telaAtiva === 'documents' ? 'active' : '' ?>" href="/documentos"><i data-lucide="file-text"></i>Documentos</a>
         </nav>
 

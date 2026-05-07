@@ -34,10 +34,10 @@ require __DIR__ . '/../layout/app-shell-start.php';
             <thead>
                 <tr>
                     <th>Documento</th>
-                    <th>Signatarios</th>
+                    <th>Signatários</th>
                     <th>Status</th>
                     <th>Data</th>
-                    <th>Acoes</th>
+                    <th>Ações</th>
                 </tr>
             </thead>
             <tbody>
@@ -65,7 +65,7 @@ require __DIR__ . '/../layout/app-shell-start.php';
                                         <?php if ($extraSigners > 0): ?><em>+<?= $extraSigners ?></em><?php endif; ?>
                                     </span>
                                 <?php else: ?>
-                                    <span class="documents-muted">Sem signatarios</span>
+                                    <span class="documents-muted">Sem signatários</span>
                                 <?php endif; ?>
                             </td>
                             <td><span class="documents-badge <?= $statusMap[$document['status']]['class'] ?? 'progress' ?>">

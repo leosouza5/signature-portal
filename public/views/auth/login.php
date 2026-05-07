@@ -2,7 +2,7 @@
 
 use App\Http\Session;
 
-$tituloAuth = "Assinaturas digitais sem complicacao";
+$tituloAuth = "Assinaturas digitais sem complicação";
 $subTituloAuth = "Envie documentos, acompanhe assinaturas e valide arquivos com facilidade.";
 $session = new Session();
 

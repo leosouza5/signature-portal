@@ -16,7 +16,7 @@ require __DIR__ . '/../layout/app-shell-start.php';
         <section class="new-document-card">
             <header class="new-document-section-title">
                 <span>1</span>
-                <h2>Informacoes do documento</h2>
+                <h2>Informações do documento</h2>
             </header>
 
             <label class="new-document-field">
@@ -42,7 +42,7 @@ require __DIR__ . '/../layout/app-shell-start.php';
         <section class="new-document-card">
             <header class="new-document-section-title">
                 <span>2</span>
-                <h2>Signatarios</h2>
+                <h2>Signatários</h2>
             </header>
 
             <div class="signers-table" id="signers">
@@ -82,7 +82,7 @@ require __DIR__ . '/../layout/app-shell-start.php';
 
             <button type="button" class="add-signer-button" id="add-signer">
                 <i data-lucide="plus"></i>
-                Adicionar signatario
+                Adicionar signatário
             </button>
         </section>
     </div>
@@ -95,7 +95,7 @@ require __DIR__ . '/../layout/app-shell-start.php';
         </div>
         <div class="summary-item">
             <i data-lucide="users"></i>
-            <div><span>Total de signatarios</span><strong id="signer-count">1</strong></div>
+            <div><span>Total de signatários</span><strong id="signer-count">1</strong></div>
         </div>
         <div class="summary-actions">
             <a href="/documentos" class="summary-draft">Cancelar</a>

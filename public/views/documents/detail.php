@@ -43,7 +43,7 @@ require __DIR__ . '/../layout/app-shell-start.php';
             <i data-lucide="refresh-cw"></i>
         </span>
         <div>
-            <span>Ultima atualizacao</span>
+            <span>Última atualização</span>
             <strong><?= date('d/m/Y', strtotime($document['updated_at'])) ?></strong>
             <em><?= date('H:i', strtotime($document['updated_at'])) ?></em>
         </div>
@@ -53,7 +53,7 @@ require __DIR__ . '/../layout/app-shell-start.php';
             <i data-lucide="users"></i>
         </span>
         <div>
-            <span>Signatarios</span>
+            <span>Signatários</span>
             <strong><?= count($signers) ?></strong>
         </div>
     </article>
@@ -77,7 +77,7 @@ require __DIR__ . '/../layout/app-shell-start.php';
                             </button>
                         </form>
                     <?php else: ?>
-                        <span title="Disponivel somente apos assinatura" style="opacity:.3">
+                        <span title="Disponível somente após assinatura" style="opacity:.3">
                             <i data-lucide="download"></i>
                         </span>
                     <?php endif; ?>
@@ -91,10 +91,10 @@ require __DIR__ . '/../layout/app-shell-start.php';
         </div>
 
         <section class="detail-signers-card" id="detail-signers">
-            <header>Signatarios</header>
-            <div class="detail-signers-head"><span>Ordem</span><span>Signatario</span></div>
+            <header>Signatários</header>
+            <div class="detail-signers-head"><span>Ordem</span><span>Signatário</span></div>
             <?php if (empty($signers)): ?>
-                <p class="detail-empty">Nenhum signatario cadastrado.</p>
+                <p class="detail-empty">Nenhum signatário cadastrado.</p>
             <?php else: ?>
                 <?php foreach ($signers as $signer): ?>
                     <article class="detail-signer-row">
@@ -102,12 +102,13 @@ require __DIR__ . '/../layout/app-shell-start.php';
                         <div>
                             <strong><?= htmlspecialchars($signer['name']) ?></strong>
                             <small><?= htmlspecialchars($signer['email']) ?></small>
+                            <small>Código de acesso: <?= substr(preg_replace('/\D/', '', $signer['cpf']), -3) ?></small>
                             <?php if (!empty($signer['sign_url'])): ?>
                                 <a href="<?= htmlspecialchars($signer['sign_url']) ?>" target="_blank">Abrir link</a>
                             <?php endif; ?>
                         </div>
                         <?php if (($signer['status'] ?? '') === 'SIGNED'): ?>
-                            <span class="detail-badge signed" title="Ja assinou">&#10003; Assinou</span>
+                            <span class="detail-badge signed" title="Já assinou">&#10003; Assinou</span>
                         <?php else: ?>
                             <span class="detail-badge progress" title="Aguardando assinatura">Pendente</span>
                         <?php endif; ?>
@@ -120,7 +121,7 @@ require __DIR__ . '/../layout/app-shell-start.php';
 
     <aside class="detail-side-column">
         <section class="detail-actions-card">
-            <header>Acoes</header>
+            <header>Ações</header>
             <form action="/documentos/<?= $document['id'] ?>/atualizar-status" method="post">
                 <button type="submit" class="detail-action secondary-action">
                     <i data-lucide="refresh-cw"></i>

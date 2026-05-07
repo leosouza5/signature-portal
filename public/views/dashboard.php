@@ -46,7 +46,7 @@ require __DIR__ . '/layout/app-shell-start.php';
                     <th>Documento</th>
                     <th>Status</th>
                     <th>Criado em</th>
-                    <th>Acao</th>
+                    <th>Ação</th>
                 </tr>
             </thead>
             <tbody>
@@ -57,7 +57,7 @@ require __DIR__ . '/layout/app-shell-start.php';
                         <tr>
                             <td><span class="doc-name"><i data-lucide="file"></i><?= htmlspecialchars($doc['title']) ?></span></td>
                             <td><span class="dashboard-badge <?= $statusMap[$doc['status']]['class'] ?? 'progress' ?>"><?= $statusMap[$doc['status']]['label'] ?? 'Aguardando' ?></span></td>
-                            <td><?= htmlspecialchars($doc['created_at']) ?></td>
+                            <td><?= date('d/m/Y H:i', strtotime($doc['created_at'])) ?></td>
                             <td><a class="view-action" href="/documentos/<?= $doc['id'] ?>" aria-label="Ver documento"><i data-lucide="eye"></i></a></td>
                         </tr>
                     <?php endforeach; ?>
