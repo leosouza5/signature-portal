@@ -1,12 +1,23 @@
 # Signature Portal
 
-MVP em PHP puro para criar envelopes, enviar documentos para assinatura via Certisign e acompanhar o status de cada assinante.
+Case de estudo para apresentação de um fluxo completo de assinatura digital de documentos, integrando com a API da Certisign. O objetivo é demonstrar como uma aplicação web pode gerenciar o envio de documentos PDF, controle de assinantes e acompanhamento de status de assinatura em tempo real.
 
 ## Stack
 
-- PHP puro com POO
-- PostgreSQL + Docker
-- HTML, CSS e JS puro (sem frameworks)
+- **PHP** — back-end em PHP puro com orientação a objetos, sem frameworks
+- **PostgreSQL** — banco de dados relacional
+- **HTML, CSS e JavaScript** — front-end vanilla, sem dependências externas
+
+## Funcionalidades
+
+- Cadastro e autenticação de usuários
+- Upload de documentos PDF
+- Cadastro de múltiplos assinantes por documento (nome, e-mail e CPF)
+- Envio do documento para assinatura via API da Certisign
+- Acompanhamento de status por assinante (pendente, parcial, concluído)
+- Links individuais de assinatura para cada assinante
+- Download do pacote assinado após conclusão
+- Filtros de documentos por status (todos, pendentes, assinados, erro)
 
 ## Requisitos
 
@@ -14,7 +25,7 @@ MVP em PHP puro para criar envelopes, enviar documentos para assinatura via Cert
 - Extensões: `pdo_pgsql` e `curl`
 - Docker e Docker Compose
 
-## Configuracao
+## Como rodar
 
 1. Copie `.env.example` para `.env` e preencha as credenciais:
 
@@ -50,12 +61,11 @@ php -S localhost:8000 -t public
 
 5. Acesse `http://localhost:8000`
 
-## Fluxo
+## Fluxo da aplicacao
 
-1. Cadastro ou login
-2. Criacao do envelope com upload do PDF e informacoes dos assinantes
-3. Upload dos bytes para `/document/upload`
-4. Envio para `/document/createBatch`
-5. Tela de detalhes com status, assinantes e links de assinatura
-6. Botao "Atualizar status" consulta `/document/ValidateSignatures` e atualiza cada assinante por CPF ou e-mail
-7. Download via `/document/package` apos todos assinarem
+1. Usuario faz cadastro ou login
+2. Faz upload de um PDF e informa os dados dos assinantes
+3. O documento e enviado para a Certisign via API
+4. Cada assinante recebe um link individual para assinar
+5. A tela de detalhes exibe o status de cada assinante em tempo real
+6. Apos todos assinarem, o documento fica disponivel para download

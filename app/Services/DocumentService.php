@@ -22,19 +22,20 @@ class DocumentService
     {
         $this->validate($title, $files, $signerInput);
 
-        $normalizedFiles = $this->normalizeFiles($files);
+        $normalizedFiles = $this->prepareFiles($files);
         $file = $normalizedFiles[0];
         $localPath = $this->saveUploadedFile($file);
         $documentId = $this->documents->create($userId, $title, $file['name'], $localPath);
 
         try {
-            foreach ($signerInput as $index => $signer) {
+            $order = 1;
+            foreach ($signerInput as $signer) {
                 $this->signers->create(
                     $documentId,
                     trim($signer['name']),
                     trim($signer['email']),
-                    preg_replace('/\D/', '', $signer['cpf']),
-                    $index + 1
+                    str_replace(['.', '-', '/', ' '], '', $signer['cpf']),
+                    $order++
                 );
             }
 
@@ -44,10 +45,10 @@ class DocumentService
             $document = $this->documents->getById($documentId);
             $signers = $this->signers->getAllByDocument($documentId);
             $response = $this->certisign->createBatch([$document], $signers);
-            error_log('[createBatch response] ' . json_encode($response));
-            $this->saveBatchResponse([$document], $signers, $response);
+            $this->saveResponse([$document], $signers, $response);
             $this->documents->updateStatus($documentId, 'SENT');
         } catch (\Exception $exception) {
+            $this->signers->deleteByDocument($documentId);
             $this->documents->delete($documentId);
             throw $exception;
         }
@@ -74,6 +75,7 @@ class DocumentService
         $signedCount = $this->updateSignerStatuses($signers, $validation['electronicSignatures'] ?? []);
 
         $total = count($signers);
+
         if ($signedCount === 0) {
             $status = 'SENT';
         } elseif ($signedCount < $total) {
@@ -93,17 +95,20 @@ class DocumentService
 
         foreach ($signers as $signer) {
             $signed = false;
-            $signerCpf = preg_replace('/\D/', '', (string) $signer['cpf']);
-            $signerEmail = strtolower(trim($signer['email']));
+            $cpf = str_replace(['.', '-', '/', ' '], '', (string) $signer['cpf']);
+            $email = strtolower(trim($signer['email']));
 
             foreach ($electronicSignatures as $signature) {
                 $evidences = $signature['evidences'] ?? [];
                 $evidenceMap = array_column($evidences, 'value', 'name');
 
-                $sigCpf = preg_replace('/\D/', '', (string) ($evidenceMap['signerIdentifier'] ?? ''));
+                $sigCpf = str_replace(['.', '-', '/', ' '], '', (string) ($evidenceMap['signerIdentifier'] ?? ''));
                 $sigEmail = strtolower(trim((string) ($evidenceMap['email'] ?? $evidenceMap['externalEmail'] ?? '')));
 
-                if (($signerCpf !== '' && $signerCpf === $sigCpf) || ($signerEmail !== '' && $signerEmail === $sigEmail)) {
+                $cpfMatch = $cpf !== '' && $cpf === $sigCpf;
+                $emailMatch = $email !== '' && $email === $sigEmail;
+
+                if ($cpfMatch || $emailMatch) {
                     $signed = true;
                     break;
                 }
@@ -171,7 +176,7 @@ class DocumentService
         }
     }
 
-    private function normalizeFiles(array $files): array
+    private function prepareFiles(array $files): array
     {
         $items = [];
 
@@ -196,9 +201,9 @@ class DocumentService
 
     private function saveUploadedFile(array $file): string
     {
-        $safeName = preg_replace('/[^a-zA-Z0-9._-]/', '_', $file['name']);
+        $fileName = str_replace(' ', '_', $file['name']);
         $uploadDir = __DIR__ . '/../../storage/uploads/';
-        $fullPath = $uploadDir . uniqid('doc_', true) . '_' . $safeName;
+        $fullPath = $uploadDir . uniqid('doc_', true) . '_' . $fileName;
 
         if (!is_dir($uploadDir)) {
             mkdir($uploadDir, 0755, true);
@@ -211,7 +216,7 @@ class DocumentService
         return $fullPath;
     }
 
-    private function saveBatchResponse(array $documents, array $signers, array $response): void
+    private function saveResponse(array $documents, array $signers, array $response): void
     {
         $documentResults = $this->extractDocumentResults($response);
 
@@ -222,35 +227,35 @@ class DocumentService
             $this->documents->updateSignatureInfo((int) $document['id'], $documentId, $documentKey, 'SENT');
         }
 
-        $attendees = $this->extractAttendees($response);
+        $responseSigners = $this->extractSigners($response);
 
         foreach ($signers as $signer) {
             $signUrl = null;
-            $attendeeId = null;
+            $responseSignerId = null;
 
-            foreach ($attendees as $attendee) {
-                if (!is_array($attendee)) {
+            foreach ($responseSigners as $responseSigner) {
+                if (!is_array($responseSigner)) {
                     continue;
                 }
 
-                $attendeeEmail = strtolower(trim((string) ($attendee['email'] ?? '')));
-                $attendeeCpf = preg_replace('/\D/', '', (string) ($attendee['individualIdentificationCode'] ?? $attendee['cpf'] ?? ''));
-                $signerCpf = preg_replace('/\D/', '', (string) $signer['cpf']);
+                $email = strtolower(trim((string) ($responseSigner['email'] ?? '')));
+                $cpf = str_replace(['.', '-', '/', ' '], '', (string) ($responseSigner['individualIdentificationCode'] ?? $responseSigner['cpf'] ?? ''));
+                $signerCpf = str_replace(['.', '-', '/', ' '], '', (string) $signer['cpf']);
 
-                $matchesEmail = $attendeeEmail !== '' && $attendeeEmail === strtolower(trim($signer['email']));
-                $matchesCpf = $attendeeCpf !== '' && $attendeeCpf === $signerCpf;
+                $emailMatch = $email !== '' && $email === strtolower(trim($signer['email']));
+                $cpfMatch = $cpf !== '' && $cpf === $signerCpf;
 
-                if (!$matchesEmail && !$matchesCpf) {
+                if (!$emailMatch && !$cpfMatch) {
                     continue;
                 }
 
-                $attendeeId = $attendee['signerId'] ?? $attendee['id'] ?? $attendee['attendeeId'] ?? null;
-                $batchSignUrl = $attendee['batchSignUrl'] ?? '';
-                $signUrl = ($batchSignUrl !== '') ? $batchSignUrl : ($attendee['signUrl'] ?? $attendee['link'] ?? null);
+                $responseSignerId = $responseSigner['signerId'] ?? $responseSigner['id'] ?? $responseSigner['attendeeId'] ?? null;
+                $batchSignUrl = $responseSigner['batchSignUrl'] ?? '';
+                $signUrl = $batchSignUrl !== '' ? $batchSignUrl : ($responseSigner['signUrl'] ?? $responseSigner['link'] ?? null);
                 break;
             }
 
-            $this->signers->updateSignatureInfo((int) $signer['id'], $attendeeId, $signUrl);
+            $this->signers->updateSignatureInfo((int) $signer['id'], $responseSignerId, $signUrl);
         }
     }
 
@@ -267,30 +272,29 @@ class DocumentService
         return [$response];
     }
 
-    private function extractAttendees(array $response): array
+    private function extractSigners(array $response): array
     {
-        $attendees = [];
+        $signers = [];
 
-        foreach ([$response['attendees'] ?? null] as $candidate) {
-            if (is_array($candidate)) {
-                $attendees = array_merge($attendees, $candidate);
-            }
+        if (!empty($response['attendees'])) {
+            $signers = array_merge($signers, $response['attendees']);
         }
 
         foreach ($this->extractDocumentResults($response) as $document) {
-            if (isset($document['attendees']) && is_array($document['attendees'])) {
-                $attendees = array_merge($attendees, $document['attendees']);
+            if (!empty($document['attendees'])) {
+                $signers = array_merge($signers, $document['attendees']);
             }
         }
 
-        if (isset($response['steps']) && is_array($response['steps'])) {
+        if (!empty($response['steps'])) {
             foreach ($response['steps'] as $step) {
-                if (isset($step['attendees']) && is_array($step['attendees'])) {
-                    $attendees = array_merge($attendees, $step['attendees']);
+                if (!empty($step['attendees'])) {
+                    $signers = array_merge($signers, $step['attendees']);
                 }
             }
         }
 
-        return $attendees;
+        return $signers;
     }
+
 }

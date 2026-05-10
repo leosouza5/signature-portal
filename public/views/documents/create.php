@@ -51,6 +51,7 @@ require __DIR__ . '/../layout/app-shell-start.php';
                     <span>Nome</span>
                     <span>E-mail</span>
                     <span>CPF</span>
+                    <span></span>
                 </div>
 
                 <?php
@@ -76,6 +77,7 @@ require __DIR__ . '/../layout/app-shell-start.php';
                                 minlength="14" maxlength="14" pattern="\d{3}\.\d{3}\.\d{3}-\d{2}"
                                 value="<?= htmlspecialchars($signer['cpf'] ?? '') ?>">
                         </label>
+                        <button type="button" class="remove-signer" onclick="removeSigner(this)">✕</button>
                     </div>
                 <?php endforeach; ?>
             </div>
@@ -99,7 +101,7 @@ require __DIR__ . '/../layout/app-shell-start.php';
         </div>
         <div class="summary-actions">
             <a href="/documentos" class="summary-draft">Cancelar</a>
-            <button type="submit" id="submit-envelope">Enviar para assinatura</button>
+            <button type="submit" id="submit-documento">Enviar para assinatura</button>
         </div>
     </aside>
 </form>

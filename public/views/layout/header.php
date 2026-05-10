@@ -25,7 +25,7 @@ $session = new Session();
         <?php if ($session->getUserId()): ?>
             <nav>
                 <a href="/dashboard">Dashboard</a>
-                <a href="/envelopes/create">Novo envio</a>
+                <a href="/documentos/criar">Novo envio</a>
                 <form action="/logout" method="post">
                     <button type="submit" class="link-button">Sair</button>
                 </form>

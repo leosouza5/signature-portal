@@ -30,22 +30,20 @@ class DocumentController
 
     public function documents(): void
     {
-        $this->auth->requireLogin();
-
-        $documentRepository = new DocumentRepository();
-        $signerRepository = new SignerRepository();
+        $docRepo = new DocumentRepository();
+        $signerRepo = new SignerRepository();
 
         $filter = $_GET['filter'] ?? 'all';
         $documents = match ($filter) {
-            'pending' => $documentRepository->getPendingByUser($this->auth->userId()),
-            'signed' => $documentRepository->getSignedByUser($this->auth->userId()),
-            'error' => $documentRepository->getErrorByUser($this->auth->userId()),
-            default => $documentRepository->getAllByUser($this->auth->userId()),
+            'pending' => $docRepo->getPendingByUser($this->auth->userId()),
+            'signed' => $docRepo->getSignedByUser($this->auth->userId()),
+            'error' => $docRepo->getErrorByUser($this->auth->userId()),
+            default => $docRepo->getAllByUser($this->auth->userId()),
         };
 
         $signersByDocument = [];
         foreach ($documents as $document) {
-            $signersByDocument[$document['id']] = $signerRepository->getAllByDocument((int) $document['id']);
+            $signersByDocument[$document['id']] = $signerRepo->getAllByDocument((int) $document['id']);
         }
 
         Response::view('documents/index', [
@@ -62,8 +60,6 @@ class DocumentController
 
     public function store(): void
     {
-        $this->auth->requireLogin();
-
         try {
             $this->validaTamanho();
 
@@ -96,8 +92,6 @@ class DocumentController
 
     public function show(int $id): void
     {
-        $this->auth->requireLogin();
-
         try {
             $service = new DocumentService();
             $service->checkStatus($id);
@@ -123,8 +117,6 @@ class DocumentController
 
     public function download(int $id): void
     {
-        $this->auth->requireLogin();
-
         try {
             $service = new DocumentService();
             $package = $service->downloadDocument($id, $this->auth->userId());
@@ -141,11 +133,8 @@ class DocumentController
 
         if (is_array($rawBytes)) {
             $content = pack('C*', ...array_map('intval', $rawBytes));
-        } elseif (is_string($rawBytes)) {
-            $decoded = base64_decode($rawBytes, true);
-            $content = $decoded !== false ? $decoded : $rawBytes;
         } else {
-            throw new \Exception('Formato de bytes do pacote nao reconhecido.');
+            $content = base64_decode($rawBytes, true) ?: $rawBytes;
         }
 
         $fileName = basename($package['name'] ?? 'documento-assinado.zip');
@@ -159,10 +148,10 @@ class DocumentController
 
     private function loadDocument(int $id): array
     {
-        $documentRepository = new DocumentRepository();
-        $signerRepository = new SignerRepository();
+        $docRepo = new DocumentRepository();
+        $signerRepo = new SignerRepository();
 
-        $document = $documentRepository->getByUser($id, $this->auth->userId());
+        $document = $docRepo->getByUser($id, $this->auth->userId());
 
         if (!$document) {
             Response::abort(404, 'Documento nao encontrado');
@@ -170,7 +159,7 @@ class DocumentController
 
         return [
             'document' => $document,
-            'signers' => $signerRepository->getAllByDocument($id),
+            'signers' => $signerRepo->getAllByDocument($id),
         ];
     }
 }

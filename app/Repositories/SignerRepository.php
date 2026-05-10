@@ -38,6 +38,12 @@ class SignerRepository
         return $stmt->fetchAll();
     }
 
+    public function deleteByDocument(int $documentId): void
+    {
+        $stmt = $this->db->prepare('DELETE FROM signers WHERE document_id = ?');
+        $stmt->execute([$documentId]);
+    }
+
     public function updateStatus(int $id, string $status): void
     {
         $stmt = $this->db->prepare('
@@ -48,7 +54,7 @@ class SignerRepository
         $stmt->execute([$status, $id]);
     }
 
-    public function updateSignatureInfo(int $id, ?string $attendeeId, ?string $signUrl): void
+    public function updateSignatureInfo(int $id, ?string $signerId, ?string $signUrl): void
     {
         $stmt = $this->db->prepare('
             UPDATE signers
@@ -56,6 +62,6 @@ class SignerRepository
                 sign_url = ?
             WHERE id = ?
         ');
-        $stmt->execute([$attendeeId, $signUrl, $id]);
+        $stmt->execute([$signerId, $signUrl, $id]);
     }
 }

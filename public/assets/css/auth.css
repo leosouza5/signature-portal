@@ -20,7 +20,6 @@
     transform: translateX(-50%);
 }
 
-/* screen layout */
 
 .login-screen {
     position: relative;
@@ -35,7 +34,6 @@
     overflow: hidden;
 }
 
-/* brand */
 
 .login-brand {
     position: absolute;
@@ -80,7 +78,6 @@
     color: #249447;
 }
 
-/* left copy */
 
 .login-copy {
     position: relative;
@@ -102,7 +99,6 @@
     color: #6b7280;
 }
 
-/* decorative circles */
 
 .login-circle {
     position: absolute;
@@ -126,7 +122,6 @@
     opacity: 0.04;
 }
 
-/* card */
 
 .login-card {
     position: relative;
@@ -148,14 +143,13 @@
     color: #111827;
 }
 
-/* form */
 
 .login-form {
     display: grid;
     gap: 16px;
 }
 
-.login-form > label {
+.login-form>label {
     display: block;
     margin-bottom: -8px;
     font-size: 13px;
@@ -283,7 +277,6 @@
     color: #249447;
 }
 
-/* register */
 
 .register-screen {
     grid-template-columns: minmax(320px, 1fr) minmax(440px, 520px);
@@ -330,7 +323,6 @@
     margin-top: 14px;
 }
 
-/* responsive */
 
 @media (max-width: 1180px) {
     .login-screen {
@@ -385,6 +377,7 @@
 }
 
 @media (max-width: 760px) {
+
     .login-page,
     .login-page .container {
         height: auto;

@@ -3,7 +3,7 @@ const fileList = document.getElementById('selected-files');
 const fileCount = document.getElementById('document-count');
 const dropzone = document.getElementById('upload-dropzone');
 const uploadErr = document.getElementById('upload-error');
-const submitBtn = document.getElementById('submit-envelope');
+const submitBtn = document.getElementById('submit-documento');
 const maxSize = 8 * 1024 * 1024;
 let arquivos = [];
 

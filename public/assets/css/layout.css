@@ -7,7 +7,7 @@
     padding: 0;
 }
 
-/* shell */
+
 
 .app-shell {
     display: flex;
@@ -23,7 +23,7 @@
     stroke-linejoin: round;
 }
 
-/* sidebar */
+
 
 .app-sidebar {
     display: flex;
@@ -70,7 +70,7 @@
     height: 18px;
 }
 
-/* nav */
+
 
 .app-nav {
     display: grid;
@@ -133,7 +133,7 @@
     color: #249447;
 }
 
-/* main */
+
 
 .app-main {
     display: flex;
@@ -237,7 +237,7 @@
     padding: 32px;
 }
 
-/* responsive */
+
 
 @media (max-width: 980px) {
     .app-sidebar {
@@ -253,6 +253,7 @@
 }
 
 @media (max-width: 760px) {
+
     .topbar,
     .page-title,
     .section-heading,
