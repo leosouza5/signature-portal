@@ -32,7 +32,7 @@ class CertisignService
         return $response['uploadId'];
     }
 
-    public function createBatch(array $documents, array $signers): array
+    public function createDocument(array $documents, array $signers): array
     {
         $documents_payload = [];
 
@@ -65,7 +65,7 @@ class CertisignService
         return $this->request('GET', '/document/details/' . rawurlencode($documentId));
     }
 
-public function validateSignatures(string $documentKey): array
+    public function validateSignatures(string $documentKey): array
     {
         $response = $this->request('GET', '/document/ValidateSignatures?key=' . rawurlencode($documentKey));
         $response['isValid'] = ($response['isValid'] ?? false) === true;
@@ -132,32 +132,24 @@ public function validateSignatures(string $documentKey): array
 
     private function request(string $method, string $endpoint, ?array $payload = null): array
     {
-        if (!function_exists('curl_init')) {
-            throw new \Exception('Extensao cURL do PHP nao esta habilitada.');
-        }
+
 
         $curl = curl_init($this->baseUrl . $endpoint);
-        $headers = [
-            'token: ' . $this->token,
-            'code: ' . $this->code,
-            'Content-Type: application/json',
-        ];
 
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $method);
-        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
-
-        $caBundle = ini_get('curl.cainfo');
-        if ($caBundle && file_exists($caBundle)) {
-            curl_setopt($curl, CURLOPT_CAINFO, $caBundle);
-        }
+        curl_setopt_array($curl, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_CUSTOMREQUEST => $method,
+            CURLOPT_HTTPHEADER => [
+                'token: ' . $this->token,
+                'code: ' . $this->code,
+                'Content-Type: application/json',
+            ],
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYHOST => false,
+        ]);
 
         if ($payload !== null) {
-            $encoded = json_encode($payload);
-            error_log('[Certisign] ' . $method . ' ' . $endpoint . ' => ' . $encoded);
-            curl_setopt($curl, CURLOPT_POSTFIELDS, $encoded);
+            curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($payload));
         }
 
         $body = curl_exec($curl);

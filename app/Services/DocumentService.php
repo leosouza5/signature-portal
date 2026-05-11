@@ -44,7 +44,7 @@ class DocumentService
 
             $document = $this->documents->getById($documentId);
             $signers = $this->signers->getAllByDocument($documentId);
-            $response = $this->certisign->createBatch([$document], $signers);
+            $response = $this->certisign->createDocument([$document], $signers);
             $this->saveResponse([$document], $signers, $response);
             $this->documents->updateStatus($documentId, 'SENT');
         } catch (\Exception $exception) {

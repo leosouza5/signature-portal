@@ -1,6 +1,5 @@
 /vendor/
 .env
-/database/database.sqlite
 /storage/uploads/
 /storage/logs/
 
