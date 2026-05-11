@@ -108,16 +108,15 @@ class DocumentRepository
         return $stmt->fetch() ?: null;
     }
 
-    public function updateStatus(int $id, string $status, ?string $errorMessage = null): void
+    public function updateStatus(int $id, string $status): void
     {
         $stmt = $this->db->prepare('
             UPDATE documents
             SET status = ?,
-                error_message = ?,
                 updated_at = CURRENT_TIMESTAMP
             WHERE id = ?
         ');
-        $stmt->execute([$status, $errorMessage, $id]);
+        $stmt->execute([$status, $id]);
     }
 
     public function updateUploadId(int $id, string $uploadId): void
